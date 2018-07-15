@@ -60,7 +60,10 @@ public class Individual extends Polyline {
 
         x = y = 100.0;
 
-        for (int i = 0; i < SEGMENT_QUANTITY; i++) {
+        this.getPoints().add(x);
+        this.getPoints().add(y);
+
+        for (int i = 1; i < SEGMENT_QUANTITY; i++) {
             dx = Math.cos(genome.getGenes()[i]) * Individual.SEGMENT_LENGTH;
             dy = Math.sin(genome.getGenes()[i]) * Individual.SEGMENT_LENGTH;
 

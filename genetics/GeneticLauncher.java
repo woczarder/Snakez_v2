@@ -1,6 +1,6 @@
 package dev.harddrillstudio.genetics.genetics;
 
-public class GeneticLauncher {
+public class GeneticLauncher implements Runnable {
 
     Algorithm algorithm;
 
@@ -13,12 +13,18 @@ public class GeneticLauncher {
     }
 
 
-    public void start() {
+    public Algorithm getAlgorithm() {
+        return algorithm;
+    }
+
+
+    @Override
+    public void run() {
         int genCount = 0;
 
 
         while(algorithm.getPopulation().getFittest().getFitness() > 120 ) {
-            algorithm.population = algorithm.evolvePopulation(algorithm.getPopulation());
+            algorithm.setPopulation(algorithm.evolvePopulation(algorithm.getPopulation()));
             genCount++;
 
             algorithm.getPopulation().printPopulation();
@@ -26,8 +32,4 @@ public class GeneticLauncher {
         }
     }
 
-
-    public Algorithm getAlgorithm() {
-        return algorithm;
-    }
 }

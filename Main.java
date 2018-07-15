@@ -1,78 +1,108 @@
 package dev.harddrillstudio.genetics;
 
 import dev.harddrillstudio.genetics.genetics.Algorithm;
+import javafx.animation.Animation;
+import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import dev.harddrillstudio.genetics.genetics.GeneticLauncher;
+import javafx.util.Duration;
 
-public class Main extends Application {
+public class Main extends Application implements Runnable {
+
+    private Text fittestText;
+    private Ellipse goal;
+    private Group root, UIAddons;
+    private Scene scene;
+    private Stage primaryStage;
+    private Timeline timeline;
+
+    private GeneticLauncher geneticLauncher;
+    private Thread algorithm;
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        this.primaryStage = primaryStage;
 
-        GeneticLauncher geneticLauncher = new GeneticLauncher();
-        geneticLauncher.start();
-        Ellipse goal = new Ellipse(Algorithm.GOAL_X, Algorithm.GOAL_Y, 10, 10);
+        startGeneticThread();
+        
+        initGroups();
 
-        Group stuff = new Group(goal);
+        initAnimation();
 
-        Group root = new Group(geneticLauncher.getAlgorithm().getPopulation(), stuff);
+        initScene();
+
+        initStage();
+    }
 
 
-        Scene scene = new Scene(root, 600,600);
-        scene.setFill(Color.WHITE);
+    @Override
+    public void run() {
 
+    }
+
+
+    private void updateScreen() {
+        fittestText = new Text("Fittest: " + geneticLauncher.getAlgorithm().getPopulation().getFittest().getFitness());
+        root = new Group(geneticLauncher.getAlgorithm().getPopulation(), UIAddons);
+        scene = new Scene(root, 600, 600);
+        primaryStage.setScene(scene);
+    }
+
+
+    private void initStage() {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Snakez v2");
-
-        Canvas canvas = new Canvas( 512, 512 );
-        root.getChildren().add( canvas );
-
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-
-        Timeline gameLoop = new Timeline();
-        gameLoop.setCycleCount(Timeline.INDEFINITE);
-
-        final long timeStart = System.currentTimeMillis();
-
-        KeyFrame kf = new KeyFrame(
-                Duration.seconds(0.017),
-                new EventHandler<ActionEvent>()
-                {
-                    public void handle(ActionEvent ae)
-                    {
-                        double t = (System.currentTimeMillis() - timeStart) / 1000.0;
-
-                        double x = 232 + 128 * Math.cos(t);
-                        double y = 232 + 128 * Math.sin(t);
-
-                        // Clear the canvas
-                        gc.clearRect(0, 0, 512,512);
-
-                        // background image clears canvas
-
-                    }
-                }
-        );
-
         primaryStage.show();
-
-        //geneticLauncher.start();
     }
 
-
-    public static void main(String[] args) {
-        launch(args);
+    private void initScene() {
+        scene = new Scene(root, 600,600);
+        scene.setFill(Color.WHITE);
     }
+
+    private void initGroups() {
+        goal = new Ellipse(Algorithm.GOAL_X, Algorithm.GOAL_Y, 10, 10);
+        fittestText = new Text("Fittest: " + geneticLauncher.getAlgorithm().getPopulation().getFittest().getFitness());
+        fittestText.setX(400);
+        fittestText.setY(50);
+
+        UIAddons = new Group(goal, fittestText);
+        root = new Group(geneticLauncher.getAlgorithm().getPopulation(), UIAddons);
+    }
+
+    private void initAnimation() {
+        timeline = new Timeline();
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.setAutoReverse(true);
+
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                updateScreen();
+            }
+        };
+
+        Duration duration = Duration.millis(1000);
+        KeyFrame keyFrame = new KeyFrame(duration);
+
+        timeline.getKeyFrames().add(keyFrame);
+        timeline.play();
+        timer.start();
+    }
+
+    private void startGeneticThread() {
+        geneticLauncher = new GeneticLauncher();
+        algorithm = new Thread(geneticLauncher);
+        algorithm.start();
+    }
+
 }

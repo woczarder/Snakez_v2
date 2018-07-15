@@ -5,9 +5,9 @@ public class Algorithm {
     public static final int GOAL_X = 500;
     public static final int GOAL_Y = 500;
 
-    public static final int POP_SIZE = 50;
+    public static final int POP_SIZE = 3;
     public static final int TOURNAMENT_SIZE = (int) (POP_SIZE * 0.4);
-    public static final double MUTATION_RATE = 0.7;
+    public static final double MUTATION_RATE = 0.0;
 
     public static final boolean elitism = true;
 
@@ -28,7 +28,7 @@ public class Algorithm {
             Individual mother = tournamentSelect(pop);
             Individual father = tournamentSelect(pop);
 
-            Individual offspring = crossoverAverage(mother, father);
+            Individual offspring = crossoverAlternating(mother, father);
             offspring = mutate(offspring);
 
             newPop.individuals.set(i, offspring);
@@ -97,5 +97,9 @@ public class Algorithm {
         return fittest;
     }
 
+
+    public void setPopulation(Population population) {
+        this.population = population;
+    }
 
 }
